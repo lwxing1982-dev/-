@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学星球冒险 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --space: #0a0e27;
+  --space2: #131840;
+  --purple: #6c3fcf;
+  --purple2: #9b6bff;
+  --pink: #ff6b9d;
+  --yellow: #ffd700;
+  --cyan: #00e5ff;
+  --green: #00e676;
+  --orange: #ff9800;
+  --red: #ff5252;
+  --white: #ffffff;
+  --card: rgba(255,255,255,0.07);
+  --card-border: rgba(255,255,255,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family:‘Nunito’,sans-serif;
+background:var(–space);
+color:var(–white);
+min-height:100vh;
+overflow-x:hidden;
+}
+
+/* STARS BACKGROUND */
+.stars {
+position:fixed; inset:0; z-index:0; pointer-events:none;
+background:
+radial-gradient(ellipse at 20% 30%, rgba(108,63,207,0.25) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 70%, rgba(255,107,157,0.15) 0%, transparent 50%),
+var(–space);
+}
+.stars::before, .stars::after {
+content:’’;
+position:absolute; inset:0;
+background-image:
+radial-gradient(1px 1px at 10% 15%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 30% 45%, white 0%, transparent 100%),
+radial-gradient(1.5px 1.5px at 55% 20%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 70% 60%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 85% 35%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 15% 75%, white 0%, transparent 100%),
+radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,215,0,0.8) 0%, transparent 100%),
+radial-gradient(1px 1px at 65% 90%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 90% 10%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 25% 55%, rgba(0,229,255,0.8) 0%, transparent 100%);
+animation: twinkle 4s ease-in-out infinite alternate;
+}
+.stars::after {
+background-image:
+radial-gradient(1px 1px at 50% 25%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 75% 50%, white 0%, transparent 100%),
+radial-gradient(1.5px 1.5px at 5% 90%, rgba(255,107,157,0.8) 0%, transparent 100%),
+radial-gradient(1px 1px at 95% 80%, white 0%, transparent 100%),
+radial-gradient(1px 1px at 35% 10%, white 0%, transparent 100%);
+animation-delay: 2s;
+}
+@keyframes twinkle { from{opacity:0.6} to{opacity:1} }
+
+/* LAYOUT */
+#app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:16px; }
+
+/* HEADER */
+.header {
+text-align:center;
+padding:24px 0 16px;
+animation: slideDown .6s ease;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:none} }
+
+.header-title {
+font-family:‘ZCOOL XiaoWei’,serif;
+font-size:2.2rem;
+background:linear-gradient(135deg, var(–yellow), var(–pink), var(–cyan));
+-webkit-background-clip:text; -webkit-text-fill-color:transparent;
+background-clip:text;
+margin-bottom:4px;
+text-shadow:none;
+}
+.header-sub { font-size:0.85rem; color:rgba(255,255,255,0.55); letter-spacing:0.08em; }
+
+/* STATS BAR */
+.stats-bar {
+display:flex; gap:10px; margin:16px 0;
+animation: fadeUp .6s .1s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+.stat-chip {
+flex:1; background:var(–card);
+border:1px solid var(–card-border);
+border-radius:14px; padding:10px 8px;
+text-align:center; backdrop-filter:blur(10px);
+}
+.stat-val { font-size:1.4rem; font-weight:900; line-height:1; }
+.stat-lbl { font-size:0.65rem; color:rgba(255,255,255,0.5); margin-top:3px; text-transform:uppercase; letter-spacing:0.06em; }
+.stat-val.stars-val { color:var(–yellow); }
+.stat-val.level-val { color:var(–cyan); }
+.stat-val.streak-val { color:var(–orange); }
+
+/* PROGRESS BAR */
+.xp-bar-wrap { margin:0 0 20px; animation: fadeUp .6s .15s ease both; }
+.xp-label { display:flex; justify-content:space-between; font-size:0.72rem; color:rgba(255,255,255,0.5); margin-bottom:5px; }
+.xp-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+.xp-fill {
+height:100%;
+background:linear-gradient(90deg, var(–purple2), var(–cyan));
+border-radius:99px;
+transition:width .6s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* SECTION TABS */
+.tabs { display:flex; gap:8px; margin-bottom:18px; animation: fadeUp .6s .2s ease both; }
+.tab-btn {
+flex:1; padding:10px 6px; border:none; border-radius:12px;
+font-family:‘Nunito’,sans-serif; font-size:0.8rem; font-weight:700;
+cursor:pointer; transition:all .2s; letter-spacing:0.03em;
+background:var(–card); border:1px solid var(–card-border);
+color:rgba(255,255,255,0.5);
+}
+.tab-btn.active { color:var(–space); background:linear-gradient(135deg,var(–yellow),var(–orange)); border-color:transparent; transform:translateY(-2px); box-shadow:0 4px 16px rgba(255,152,0,0.4); }
+.tab-btn:hover:not(.active) { color:white; border-color:rgba(255,255,255,0.25); }
+
+/* VIEWS */
+.view { display:none; animation: fadeUp .3s ease; }
+.view.active { display:block; }
+
+/* PLANET CARDS (mission select) */
+.planets-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.planet-card {
+background:var(–card); border:1px solid var(–card-border);
+border-radius:18px; padding:18px 14px; text-align:center;
+cursor:pointer; transition:all .25s; backdrop-filter:blur(8px);
+position:relative; overflow:hidden;
+}
+.planet-card::before {
+content:’’; position:absolute; inset:0;
+background:linear-gradient(135deg, var(–c1,#6c3fcf33), var(–c2,#ff6b9d22));
+opacity:0; transition:opacity .25s;
+}
+.planet-card:hover { transform:translateY(-4px) scale(1.02); border-color:rgba(255,255,255,0.3); }
+.planet-card:hover::before { opacity:1; }
+.planet-card.locked { opacity:0.45; cursor:not-allowed; }
+.planet-card.locked:hover { transform:none; }
+.planet-emoji { font-size:2.8rem; margin-bottom:8px; display:block; }
+.planet-name { font-weight:800; font-size:0.95rem; margin-bottom:4px; }
+.planet-desc { font-size:0.7rem; color:rgba(255,255,255,0.5); line-height:1.4; }
+.planet-stars { margin-top:8px; font-size:0.75rem; color:var(–yellow); }
+.planet-badge {
+position:absolute; top:10px; right:10px;
+font-size:0.6rem; font-weight:800; padding:2px 7px;
+border-radius:99px; text-transform:uppercase; letter-spacing:0.06em;
+}
+.badge-new { background:var(–green); color:#003300; }
+.badge-lock { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); }
+.badge-done { background:var(–yellow); color:#333; }
+
+/* QUESTION CARD */
+.question-card {
+background:var(–card); border:1px solid var(–card-border);
+border-radius:20px; padding:24px; backdrop-filter:blur(10px);
+margin-bottom:16px;
+}
+.q-topic-badge {
+display:inline-block; padding:4px 12px; border-radius:99px;
+font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+margin-bottom:14px;
+}
+.q-number { font-size:0.8rem; color:rgba(255,255,255,0.4); margin-bottom:8px; }
+.q-text {
+font-family:‘ZCOOL XiaoWei’,serif;
+font-size:1.15rem; line-height:1.7; margin-bottom:20px;
+color:rgba(255,255,255,0.95);
+}
+.q-hint { font-size:0.78rem; color:rgba(255,255,255,0.4); margin-bottom:16px; font-style:italic; }
+
+/* OPTIONS */
+.options-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.option-btn {
+padding:13px 10px; border:2px solid var(–card-border);
+border-radius:13px; background:rgba(255,255,255,0.05);
+color:white; font-family:‘Nunito’,sans-serif;
+font-size:0.9rem; font-weight:700; cursor:pointer;
+transition:all .2s; text-align:center;
+}
+.option-btn:hover:not(:disabled) { border-color:var(–cyan); background:rgba(0,229,255,0.1); transform:scale(1.02); }
+.option-btn.correct { border-color:var(–green); background:rgba(0,230,118,0.2); color:var(–green); animation:popIn .3s ease; }
+.option-btn.wrong { border-color:var(–red); background:rgba(255,82,82,0.15); color:var(–red); }
+.option-btn:disabled { cursor:not-allowed; }
+@keyframes popIn { 0%{transform:scale(1)} 50%{transform:scale(1.07)} 100%{transform:scale(1)} }
+
+/* INPUT ANSWER */
+.answer-input-wrap { display:flex; gap:10px; }
+.answer-input {
+flex:1; padding:12px 16px;
+background:rgba(255,255,255,0.07); border:2px solid var(–card-border);
+border-radius:12px; color:white; font-size:1rem; font-family:‘Nunito’,sans-serif;
+outline:none; transition:border .2s;
+}
+.answer-input:focus { border-color:var(–cyan); }
+.submit-btn {
+padding:12px 20px; border:none; border-radius:12px;
+background:linear-gradient(135deg,var(–purple),var(–purple2));
+color:white; font-family:‘Nunito’,sans-serif;
+font-weight:800; font-size:0.9rem; cursor:pointer; transition:all .2s;
+}
+.submit-btn:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(108,63,207,0.5); }
+
+/* FEEDBACK */
+.feedback {
+border-radius:14px; padding:14px 16px; margin-top:14px;
+font-size:0.9rem; font-weight:700; display:none;
+animation:fadeUp .3s ease;
+}
+.feedback.show { display:block; }
+.feedback.correct-fb { background:rgba(0,230,118,0.15); border:1px solid rgba(0,230,118,0.4); color:var(–green); }
+.feedback.wrong-fb { background:rgba(255,82,82,0.12); border:1px solid rgba(255,82,82,0.35); color:#ff8a80; }
+.feedback-explain { font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:6px; font-weight:500; }
+
+/* NEXT BTN */
+.next-btn {
+width:100%; padding:14px; border:none; border-radius:14px;
+background:linear-gradient(135deg,var(–pink),var(–purple2));
+color:white; font-family:‘Nunito’,sans-serif;
+font-size:1rem; font-weight:800; cursor:pointer;
+transition:all .2s; margin-top:12px; display:none;
+box-shadow:0 4px 20px rgba(255,107,157,0.35);
+}
+.next-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(255,107,157,0.45); }
+.next-btn.show { display:block; animation:fadeUp .3s ease; }
+
+/* REWARD POPUP */
+.reward-overlay {
+position:fixed; inset:0; z-index:999;
+background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);
+display:none; align-items:center; justify-content:center;
+}
+.reward-overlay.show { display:flex; }
+.reward-box {
+background:linear-gradient(135deg,#1a0a3a,#0d1f3a);
+border:1px solid rgba(255,215,0,0.4);
+border-radius:24px; padding:36px 32px; text-align:center;
+max-width:340px; width:90%;
+animation:rewardPop .5s cubic-bezier(.34,1.56,.64,1);
+position:relative; overflow:hidden;
+}
+.reward-box::before {
+content:’’; position:absolute; inset:0;
+background:radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.15), transparent 60%);
+pointer-events:none;
+}
+@keyframes rewardPop { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+.reward-emoji { font-size:4rem; margin-bottom:12px; display:block; animation:spin 1s ease; }
+@keyframes spin { from{transform:rotate(-20deg) scale(0.5)} to{transform:rotate(0) scale(1)} }
+.reward-title { font-family:‘ZCOOL XiaoWei’,serif; font-size:1.6rem; color:var(–yellow); margin-bottom:8px; }
+.reward-msg { font-size:0.9rem; color:rgba(255,255,255,0.7); line-height:1.6; margin-bottom:20px; }
+.reward-stars { font-size:1.4rem; color:var(–yellow); font-weight:900; margin-bottom:18px; }
+.reward-close {
+width:100%; padding:13px; border:none; border-radius:12px;
+background:linear-gradient(135deg,var(–yellow),var(–orange));
+color:#1a0a00; font-family:‘Nunito’,sans-serif;
+font-size:1rem; font-weight:900; cursor:pointer; transition:all .2s;
+}
+.reward-close:hover { transform:scale(1.03); }
+
+/* CONFETTI particles */
+.confetti-wrap { position:fixed; inset:0; pointer-events:none; z-index:1000; overflow:hidden; }
+.confetti-p {
+position:absolute; width:8px; height:8px; border-radius:2px;
+animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* ACHIEVEMENTS */
+.achievements-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.achievement {
+background:var(–card); border:1px solid var(–card-border);
+border-radius:14px; padding:14px 10px; text-align:center;
+transition:all .2s;
+}
+.achievement.unlocked { border-color:var(–yellow); background:rgba(255,215,0,0.08); }
+.achievement.unlocked:hover { transform:translateY(-3px); }
+.ach-emoji { font-size:2rem; margin-bottom:6px; display:block; }
+.ach-name { font-size:0.7rem; font-weight:800; margin-bottom:3px; }
+.ach-desc { font-size:0.6rem; color:rgba(255,255,255,0.4); line-height:1.3; }
+.achievement.locked .ach-emoji { filter:grayscale(1) opacity(0.3); }
+.achievement.locked .ach-name { color:rgba(255,255,255,0.3); }
+
+/* PLAN VIEW */
+.plan-week {
+background:var(–card); border:1px solid var(–card-border);
+border-radius:16px; margin-bottom:14px; overflow:hidden;
+}
+.plan-week-header {
+padding:13px 16px;
+background:linear-gradient(90deg,rgba(108,63,207,0.4),rgba(255,107,157,0.2));
+font-weight:800; font-size:0.9rem; display:flex; align-items:center; gap:8px;
+}
+.plan-day {
+display:flex; align-items:flex-start; gap:12px;
+padding:11px 16px; border-top:1px solid rgba(255,255,255,0.06);
+font-size:0.82rem;
+}
+.plan-day-num {
+width:26px; height:26px; border-radius:50%;
+background:rgba(255,255,255,0.08); display:flex;
+align-items:center; justify-content:center;
+font-weight:800; font-size:0.75rem; flex-shrink:0;
+color:var(–cyan);
+}
+.plan-day-content { flex:1; }
+.plan-day-title { font-weight:700; margin-bottom:2px; }
+.plan-day-sub { color:rgba(255,255,255,0.45); font-size:0.75rem; line-height:1.4; }
+.plan-day-tag {
+font-size:0.6rem; font-weight:800; padding:2px 7px;
+border-radius:99px; flex-shrink:0; margin-top:3px;
+align-self:center;
+}
+.tag-app { background:rgba(0,229,255,0.2); color:var(–cyan); }
+.tag-calc { background:rgba(108,63,207,0.3); color:var(–purple2); }
+.tag-geo { background:rgba(0,230,118,0.2); color:var(–green); }
+.tag-stat { background:rgba(255,152,0,0.2); color:var(–orange); }
+
+/* MISC */
+.section-title {
+font-family:‘ZCOOL XiaoWei’,serif;
+font-size:1.1rem; margin-bottom:14px; color:rgba(255,255,255,0.9);
+display:flex; align-items:center; gap:8px;
+}
+.section-title::after { content:’’; flex:1; height:1px; background:rgba(255,255,255,0.1); }
+
+.empty-msg { text-align:center; padding:30px; color:rgba(255,255,255,0.3); font-size:0.85rem; }
+
+@media(max-width:400px) {
+.planets-grid { grid-template-columns:1fr; }
+.achievements-grid { grid-template-columns:repeat(2,1fr); }
+.options-grid { grid-template-columns:1fr; }
+}
+</style>
+
+</head>
+<body>
+<div class="stars"></div>
+<div class="confetti-wrap" id="confettiWrap"></div>
+<div class="reward-overlay" id="rewardOverlay">
+  <div class="reward-box">
+    <span class="reward-emoji" id="rewardEmoji">🎉</span>
+    <div class="reward-title" id="rewardTitle">太棒了！</div>
+    <div class="reward-msg" id="rewardMsg">你答对了！</div>
+    <div class="reward-stars" id="rewardStars">+10 ⭐</div>
+    <button class="reward-close" onclick="closeReward()">继续冒险 🚀</button>
+  </div>
+</div>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-title">🚀 数学星球冒险</div>
+    <div class="header-sub">五年级 · 应用题特训 · 征服宇宙！</div>
+    <div style="margin-top:10px;display:inline-block;padding:7px 18px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);border-radius:99px;font-size:0.82rem;color:#f0d47a;letter-spacing:0.06em;">
+      🎁 老爸送给可可的礼物
+    </div>
+  </div>
+
+  <!-- STATS -->
+
+  <div class="stats-bar">
+    <div class="stat-chip">
+      <div class="stat-val stars-val" id="statStars">0</div>
+      <div class="stat-lbl">⭐ 星星</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-val level-val" id="statLevel">1</div>
+      <div class="stat-lbl">🪐 等级</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-val streak-val" id="statStreak">0</div>
+      <div class="stat-lbl">🔥 连对</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-val" id="statDone" style="color:var(--pink)">0</div>
+      <div class="stat-lbl">✅ 完成</div>
+    </div>
+  </div>
+
+  <div class="xp-bar-wrap">
+    <div class="xp-label">
+      <span id="xpLabel">经验值</span>
+      <span id="xpText">0 / 100</span>
+    </div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- TABS -->
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showView('missions',this)">🪐 星球</button>
+    <button class="tab-btn" onclick="showView('practice',this)">🧮 练习</button>
+    <button class="tab-btn" onclick="showView('awards',this)">🏅 成就</button>
+    <button class="tab-btn" onclick="showView('plan',this)">📅 计划</button>
+  </div>
+
+  <!-- MISSIONS VIEW -->
+
+  <div class="view active" id="view-missions">
+    <div class="section-title">🌌 选择星球开始冒险</div>
+    <div class="planets-grid" id="planetsGrid"></div>
+  </div>
+
+  <!-- PRACTICE VIEW -->
+
+  <div class="view" id="view-practice">
+    <div id="practiceContent">
+      <div class="empty-msg">请先在"星球"页面选择一个关卡！</div>
+    </div>
+  </div>
+
+  <!-- AWARDS VIEW -->
+
+  <div class="view" id="view-awards">
+    <div class="section-title">🏅 我的成就勋章</div>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
+  <!-- PLAN VIEW -->
+
+  <div class="view" id="view-plan">
+    <div class="section-title">📅 四周学习计划</div>
+    <div id="planContent"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+
+const PLANETS = [
+  {
+    id:'fractions', emoji:'🌙', name:'分数星球', color:'#9b6bff',
+    desc:'分数加减乘除\n解决生活问题', c1:'#6c3fcf44', c2:'#9b6bff22',
+    minLevel:1, questions: [
+      { text:'小明有一块蛋糕，他吃了整体的 1/3，妹妹吃了 1/4，请问两人一共吃了多少？还剩多少？',
+        type:'input', answer:'7/12', keywords:['7/12','十二分之七'],
+        hint:'先通分：1/3 = 4/12，1/4 = 3/12', explain:'1/3 + 1/4 = 4/12 + 3/12 = 7/12，剩余 5/12', stars:15 },
+      { text:'一桶水有 3/5 升，用了 1/4 升浇花，还剩多少升水？',
+        type:'options', options:['7/20','2/20','1/5','3/10'], answer:'7/20',
+        explain:'3/5 - 1/4 = 12/20 - 5/20 = 7/20 升', stars:10 },
+      { text:'妈妈买了 2/3 千克苹果，爸爸买的是妈妈的 3/2 倍，爸爸买了多少千克苹果？',
+        type:'options', options:['1千克','4/3千克','2千克','1/2千克'], answer:'1千克',
+        explain:'2/3 × 3/2 = 6/6 = 1 千克', stars:12 },
+    ]
+  },
+  {
+    id:'decimal', emoji:'⭐', name:'小数星球', color:'#00e5ff',
+    desc:'小数运算与\n实际购物计算', c1:'#00e5ff33', c2:'#006eff22',
+    minLevel:1, questions: [
+      { text:'超市里，苹果每千克 3.6 元，橙子每千克 4.8 元。妈妈买了 2.5 千克苹果和 1.5 千克橙子，一共花了多少钱？',
+        type:'options', options:['14.4元','16.2元','13.8元','15.0元'], answer:'16.2元',
+        explain:'3.6×2.5 + 4.8×1.5 = 9 + 7.2 = 16.2 元', stars:12 },
+      { text:'小红有 50 元，买了一本书花了 18.5 元，又买了一支钢笔 6.8 元，她还剩多少钱？',
+        type:'input', answer:'24.7', keywords:['24.7','24.70'],
+        hint:'用 50 减去两件商品的总价', explain:'50 - 18.5 - 6.8 = 24.7 元', stars:10 },
+      { text:'跑道一圈是 0.4 千米，小明跑了 12 圈，一共跑了多少千米？',
+        type:'options', options:['4.8千米','3.6千米','4.2千米','5.0千米'], answer:'4.8千米',
+        explain:'0.4 × 12 = 4.8 千米', stars:10 },
+    ]
+  },
+  {
+    id:'percentage', emoji:'🪐', name:'百分比星球', color:'#00e676',
+    desc:'百分比·折扣·\n利率应用', c1:'#00e67633', c2:'#00966622',
+    minLevel:2, questions: [
+      { text:'一件衣服原价 200 元，现在打八折出售。打折后价格是多少元？节省了多少元？',
+        type:'options', options:['160元，省40元','180元，省20元','140元，省60元','170元，省30元'], answer:'160元，省40元',
+        explain:'打八折 = 80%，200 × 80% = 160 元，节省 200 - 160 = 40 元', stars:15 },
+      { text:'班里有 40 名同学，其中女生 24 人。女生占全班同学的百分之几？',
+        type:'input', answer:'60%', keywords:['60%','60','百分之六十'],
+        hint:'百分比 = 女生人数 ÷ 总人数 × 100%', explain:'24 ÷ 40 × 100% = 60%', stars:12 },
+      { text:'果园里有苹果树 150 棵，梨树的数量是苹果树的 40%，梨树有多少棵？',
+        type:'options', options:['60棵','70棵','80棵','50棵'], answer:'60棵',
+        explain:'150 × 40% = 150 × 0.4 = 60 棵', stars:10 },
+    ]
+  },
+  {
+    id:'geometry', emoji:'🔴', name:'几何星球', color:'#ff9800',
+    desc:'面积·周长·\n体积计算', c1:'#ff980033', c2:'#ff550022',
+    minLevel:2, questions: [
+      { text:'一个长方形操场，长 80 米，宽 50 米。它的面积是多少平方米？周长是多少米？',
+        type:'options', options:['4000㎡，260m','4000㎡，250m','3500㎡，260m','4200㎡，250m'], answer:'4000㎡，260m',
+        explain:'面积=80×50=4000㎡，周长=(80+50)×2=260m', stars:12 },
+      { text:'一个圆形花坛的半径是 7 米，它的面积大约是多少平方米？（π≈3.14）',
+        type:'input', answer:'153.86', keywords:['153.86','约154','153.9'],
+        hint:'圆面积 = π × r²', explain:'3.14 × 7² = 3.14 × 49 = 153.86 平方米', stars:15 },
+      { text:'一个正方体纸箱，棱长为 5 分米，它的体积是多少立方分米？',
+        type:'options', options:['125立方分米','75立方分米','150立方分米','100立方分米'], answer:'125立方分米',
+        explain:'正方体体积 = 棱长³ = 5³ = 125 立方分米', stars:10 },
+    ]
+  },
+  {
+    id:'ratio', emoji:'💜', name:'比例星球', color:'#ff6b9d',
+    desc:'比例·比值·\n按比例分配', c1:'#ff6b9d33', c2:'#9b6bff22',
+    minLevel:3, questions: [
+      { text:'学校图书馆有科普书和故事书共 360 本，科普书与故事书的比是 2:3，科普书有多少本？',
+        type:'options', options:['144本','180本','120本','216本'], answer:'144本',
+        explain:'科普书占 2/(2+3) = 2/5，360 × 2/5 = 144 本', stars:15 },
+      { text:'一辆汽车 3 小时行驶了 240 千米，照这个速度，5 小时能行驶多少千米？',
+        type:'input', answer:'400', keywords:['400','400千米'],
+        hint:'先求速度：240 ÷ 3 = ?', explain:'速度 = 240÷3 = 80 千米/时，5 小时 = 80×5 = 400 千米', stars:12 },
+      { text:'用同样的速度，6 小时能走完 48 千米的路程，走完 80 千米需要多少小时？',
+        type:'options', options:['10小时','8小时','12小时','9小时'], answer:'10小时',
+        explain:'速度 = 48÷6 = 8 千米/时，80÷8 = 10 小时', stars:12 },
+    ]
+  },
+  {
+    id:'statistics', emoji:'🌟', name:'统计星球', color:'#ffd700',
+    desc:'平均数·条形图·\n数据分析', c1:'#ffd70033', c2:'#ff980022',
+    minLevel:3, questions: [
+      { text:'小明5次数学测验成绩分别是：85、92、78、96、89分，他的平均成绩是多少分？',
+        type:'input', answer:'88', keywords:['88','88分'],
+        hint:'平均数 = 总分 ÷ 次数', explain:'(85+92+78+96+89) ÷ 5 = 440 ÷ 5 = 88 分', stars:10 },
+      { text:'某班同学最喜欢的运动：篮球18人、足球12人、乒乓球10人，喜欢篮球的占全班的百分之几？',
+        type:'options', options:['45%','40%','50%','35%'], answer:'45%',
+        explain:'总人数=18+12+10=40，18÷40×100%=45%', stars:12 },
+      { text:'气温一周数据：21、23、19、25、22、20、24℃，这周的平均气温是多少℃？',
+        type:'options', options:['22℃','21℃','23℃','24℃'], answer:'22℃',
+        explain:'(21+23+19+25+22+20+24)÷7 = 154÷7 = 22 ℃', stars:10 },
+    ]
+  },
+];
+
+const ACHIEVEMENTS = [
+  { id:'first', emoji:'🌱', name:'初探宇宙', desc:'完成第一道题', condition: s => s.totalDone >= 1 },
+  { id:'streak3', emoji:'🔥', name:'三连胜', desc:'连续答对3题', condition: s => s.maxStreak >= 3 },
+  { id:'streak5', emoji:'⚡', name:'五连神', desc:'连续答对5题', condition: s => s.maxStreak >= 5 },
+  { id:'stars50', emoji:'⭐', name:'星光闪耀', desc:'获得50颗星星', condition: s => s.stars >= 50 },
+  { id:'stars200', emoji:'🌟', name:'星河璀璨', desc:'获得200颗星星', condition: s => s.stars >= 200 },
+  { id:'level3', emoji:'🚀', name:'太空先锋', desc:'达到3级', condition: s => s.level >= 3 },
+  { id:'planet2', emoji:'🪐', name:'星球探索者', desc:'完成2个星球', condition: s => s.completedPlanets >= 2 },
+  { id:'planet4', emoji:'🌌', name:'宇宙征服者', desc:'完成4个星球', condition: s => s.completedPlanets >= 4 },
+  { id:'allplanet', emoji:'👑', name:'星际霸主', desc:'完成全部星球', condition: s => s.completedPlanets >= 6 },
+];
+
+const PLAN = [
+  {
+    week:'第一周：分数与小数基础', emoji:'🌙',
+    days:[
+      { d:1, title:'分数的意义与基本性质', sub:'通分、约分练习', tag:'calc', tagName:'计算' },
+      { d:2, title:'分数加减法应用题', sub:'食物分配、路程问题', tag:'app', tagName:'应用' },
+      { d:3, title:'分数乘除法', sub:'倍数关系，分数×整数', tag:'calc', tagName:'计算' },
+      { d:4, title:'小数的认识与加减', sub:'购物找零、价格计算', tag:'app', tagName:'应用' },
+      { d:5, title:'小数乘除法', sub:'单价×数量，速度计算', tag:'calc', tagName:'计算' },
+    ]
+  },
+  {
+    week:'第二周：百分数与几何', emoji:'⭐',
+    days:[
+      { d:1, title:'百分数的意义', sub:'折扣、税率、成绩分析', tag:'app', tagName:'应用' },
+      { d:2, title:'百分数与分数互化', sub:'实际情境转化练习', tag:'calc', tagName:'计算' },
+      { d:3, title:'长方形、正方形面积周长', sub:'操场、房间设计问题', tag:'geo', tagName:'几何' },
+      { d:4, title:'圆的周长与面积', sub:'圆形花坛、跑道计算', tag:'geo', tagName:'几何' },
+      { d:5, title:'综合练习（应用题）', sub:'生活场景混合运算', tag:'app', tagName:'应用' },
+    ]
+  },
+  {
+    week:'第三周：比例与统计', emoji:'🪐',
+    days:[
+      { d:1, title:'比的意义和基本性质', sub:'比值计算，化简比', tag:'calc', tagName:'计算' },
+      { d:2, title:'按比例分配问题', sub:'分钱、分配资源', tag:'app', tagName:'应用' },
+      { d:3, title:'正比例与反比例', sub:'速度、时间、路程关系', tag:'app', tagName:'应用' },
+      { d:4, title:'平均数的计算与应用', sub:'成绩分析、气温统计', tag:'stat', tagName:'统计' },
+      { d:5, title:'条形图和折线图读图', sub:'数据分析与推断', tag:'stat', tagName:'统计' },
+    ]
+  },
+  {
+    week:'第四周：综合提升冲刺', emoji:'🌟',
+    days:[
+      { d:1, title:'多步骤应用题（一）', sub:'两步以上混合运算', tag:'app', tagName:'应用' },
+      { d:2, title:'多步骤应用题（二）', sub:'几何+百分数结合', tag:'app', tagName:'应用' },
+      { d:3, title:'思维拓展：逻辑推理', sub:'鸡兔同笼、植树问题', tag:'app', tagName:'应用' },
+      { d:4, title:'模拟测试 + 错题复习', sub:'查漏补缺，总结方法', tag:'calc', tagName:'练习' },
+      { d:5, title:'成就展示 & 自我评价', sub:'回顾进步，设定新目标', tag:'stat', tagName:'总结' },
+    ]
+  },
+];
+
+const TAG_CLASS = { app:'tag-app', calc:'tag-calc', geo:'tag-geo', stat:'tag-stat' };
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let state = {
+  stars: 0, xp: 0, level: 1, streak: 0, maxStreak: 0,
+  totalDone: 0, completedPlanets: 0,
+  planetProgress: {}, // { planetId: questionIndex }
+  unlockedAchievements: new Set(),
+  currentPlanet: null, currentQIdx: 0, answered: false,
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('mathAdventureState');
+    if (s) {
+      const parsed = JSON.parse(s);
+      state = { ...state, ...parsed };
+      state.unlockedAchievements = new Set(parsed.unlockedAchievements || []);
+    }
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('mathAdventureState', JSON.stringify({
+      ...state, unlockedAchievements: [...state.unlockedAchievements]
+    }));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'missions') renderPlanets();
+  if (id === 'awards') renderAchievements();
+  if (id === 'plan') renderPlan();
+}
+
+function updateStats() {
+  document.getElementById('statStars').textContent = state.stars;
+  document.getElementById('statLevel').textContent = state.level;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statDone').textContent = state.totalDone;
+  const xpNeeded = state.level * 100;
+  const pct = Math.min(100, (state.xp / xpNeeded) * 100);
+  document.getElementById('xpFill').style.width = pct + '%';
+  document.getElementById('xpText').textContent = `${state.xp} / ${xpNeeded}`;
+  document.getElementById('xpLabel').textContent = `Lv.${state.level} 经验值`;
+}
+
+function gainStars(n) {
+  state.stars += n;
+  state.xp += n;
+  const needed = state.level * 100;
+  if (state.xp >= needed) {
+    state.xp -= needed;
+    state.level++;
+  }
+}
+
+// ═══════════════════════════════════════
+// PLANETS
+// ═══════════════════════════════════════
+function renderPlanets() {
+  const grid = document.getElementById('planetsGrid');
+  grid.innerHTML = PLANETS.map(p => {
+    const progress = state.planetProgress[p.id] || 0;
+    const done = progress >= p.questions.length;
+    const locked = state.level < p.minLevel;
+    const badge = done ? '<span class="planet-badge badge-done">✓ 完成</span>'
+      : locked ? '<span class="planet-badge badge-lock">🔒 未解锁</span>'
+      : progress > 0 ? `<span class="planet-badge badge-new">${progress}/${p.questions.length}</span>`
+      : '<span class="planet-badge badge-new">NEW</span>';
+    const stars = '⭐'.repeat(Math.min(progress, p.questions.length)) + '☆'.repeat(Math.max(0, p.questions.length - progress));
+    return `
+      <div class="planet-card ${locked?'locked':''}" 
+           style="--c1:${p.c1};--c2:${p.c2}"
+           onclick="${locked ? `alert('还需要达到 ${p.minLevel} 级才能解锁！继续答题升级吧！🚀')` : `startPlanet('${p.id}')`}">
+        ${badge}
+        <span class="planet-emoji">${p.emoji}</span>
+        <div class="planet-name" style="color:${p.color}">${p.name}</div>
+        <div class="planet-desc">${p.desc.replace('\n','<br>')}</div>
+        <div class="planet-stars">${stars}</div>
+      </div>`;
+  }).join('');
+}
+
+function startPlanet(id) {
+  state.currentPlanet = id;
+  state.currentQIdx = state.planetProgress[id] || 0;
+  const planet = PLANETS.find(p => p.id === id);
+  if (state.currentQIdx >= planet.questions.length) {
+    state.currentQIdx = 0; // replay
+  }
+  showView('practice', document.querySelectorAll('.tab-btn')[1]);
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════
+// QUESTIONS
+// ═══════════════════════════════════════
+function renderQuestion() {
+  const planet = PLANETS.find(p => p.id === state.currentPlanet);
+  if (!planet) return;
+  const q = planet.questions[state.currentQIdx];
+  state.answered = false;
+
+  const topicColors = { fractions:'#9b6bff', decimal:'#00e5ff', percentage:'#00e676', geometry:'#ff9800', ratio:'#ff6b9d', statistics:'#ffd700' };
+  const color = topicColors[state.currentPlanet] || '#9b6bff';
+
+  let answerHTML = '';
+  if (q.type === 'options') {
+    answerHTML = `<div class="options-grid">${q.options.map(opt =>
+      `<button class="option-btn" onclick="checkOption(this,'${opt}','${q.answer}',${q.stars})">${opt}</button>`
+    ).join('')}</div>`;
+  } else {
+    answerHTML = `<div class="answer-input-wrap">
+      <input class="answer-input" id="answerInput" placeholder="输入你的答案..." onkeydown="if(event.key==='Enter')submitInput(${q.stars})">
+      <button class="submit-btn" onclick="submitInput(${q.stars})">提交 ✓</button>
+    </div>`;
+  }
+
+  document.getElementById('practiceContent').innerHTML = `
+    <div class="question-card">
+      <div class="q-topic-badge" style="background:${color}22;color:${color};border:1px solid ${color}44">
+        ${planet.emoji} ${planet.name} · 第 ${state.currentQIdx+1} 题 / 共 ${planet.questions.length} 题
+      </div>
+      <div class="q-text">${q.text}</div>
+      ${q.hint ? `<div class="q-hint">💡 提示：${q.hint}</div>` : ''}
+      ${answerHTML}
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+      ${state.currentQIdx + 1 >= planet.questions.length ? '🎊 完成星球！' : '下一题 →'}
+    </button>`;
+}
+
+function checkOption(btn, chosen, correct, stars) {
+  if (state.answered) return;
+  state.answered = true;
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  const q = PLANETS.find(p=>p.id===state.currentPlanet).questions[state.currentQIdx];
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    handleCorrect(stars, q.explain);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+    handleWrong(q.explain);
+  }
+}
+
+function submitInput(stars) {
+  if (state.answered) return;
+  const input = document.getElementById('answerInput');
+  const val = input.value.trim();
+  if (!val) return;
+  state.answered = true;
+  input.disabled = true;
+  const q = PLANETS.find(p=>p.id===state.currentPlanet).questions[state.currentQIdx];
+  const correct = q.keywords ? q.keywords.some(k => val.includes(k) || k.includes(val)) : val === q.answer;
+  if (correct) {
+    input.style.borderColor = 'var(--green)';
+    handleCorrect(stars, q.explain);
+  } else {
+    input.style.borderColor = 'var(--red)';
+    handleWrong(q.explain);
+  }
+}
+
+function handleCorrect(stars, explain) {
+  state.streak++;
+  state.maxStreak = Math.max(state.maxStreak, state.streak);
+  state.totalDone++;
+  gainStars(stars);
+  updateStats();
+  saveState();
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback correct-fb show';
+  const msgs = ['🎉 太棒了！答对啦！', '✨ 超级厉害！', '🚀 正确！你是数学天才！', '⭐ 完全正确！', '🌟 太聪明了！'];
+  fb.innerHTML = `<strong>${msgs[Math.floor(Math.random()*msgs.length)]}</strong><div class="feedback-explain">📖 解题思路：${explain}</div>`;
+  document.getElementById('nextBtn').classList.add('show');
+
+  // check if planet complete
+  const planet = PLANETS.find(p=>p.id===state.currentPlanet);
+  const newProgress = (state.planetProgress[state.currentPlanet] || 0);
+  if (state.currentQIdx >= newProgress) {
+    state.planetProgress[state.currentPlanet] = state.currentQIdx + 1;
+    if (state.currentQIdx + 1 >= planet.questions.length) {
+      state.completedPlanets = Object.values(state.planetProgress).filter((v,i) => v >= PLANETS[i]?.questions.length).length;
+    }
+  }
+
+  checkAchievements();
+
+  // Show reward popup for correct answer
+  const rewardMsgs = [
+    ['🌟', '答对了！', `你获得了 ${stars} 颗星星！继续保持！`],
+    ['🎯', '精准命中！', `太厉害了！+${stars} ⭐`],
+    ['🚀', '火箭速度！', `正确答案！奖励 ${stars} 颗星星！`],
+    ['💫', '闪耀时刻！', `你真是数学小达人！+${stars} ⭐`],
+  ];
+  if (state.streak >= 3) {
+    showReward('🔥', `${state.streak}连胜！`, `连续答对 ${state.streak} 题！太厉害啦！奖励额外加成！`, `+${stars + 5} ⭐ 连胜奖励！`, true);
+  } else {
+    const r = rewardMsgs[Math.floor(Math.random()*rewardMsgs.length)];
+    showReward(r[0], r[1], r[2], `+${stars} ⭐`, Math.random() > 0.5);
+  }
+}
+
+function handleWrong(explain) {
+  state.streak = 0;
+  updateStats();
+  saveState();
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback wrong-fb show';
+  fb.innerHTML = `<strong>❌ 再想想哦，这次没对！</strong><div class="feedback-explain">📖 正确解法：${explain}</div>`;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion() {
+  const planet = PLANETS.find(p=>p.id===state.currentPlanet);
+  state.currentQIdx++;
+  if (state.currentQIdx >= planet.questions.length) {
+    showPlanetComplete(planet);
+  } else {
+    renderQuestion();
+  }
+}
+
+function showPlanetComplete(planet) {
+  document.getElementById('practiceContent').innerHTML = `
+    <div class="question-card" style="text-align:center;padding:40px 24px">
+      <div style="font-size:4rem;margin-bottom:16px">${planet.emoji}</div>
+      <div style="font-family:'ZCOOL XiaoWei',serif;font-size:1.6rem;color:${planet.color};margin-bottom:12px">
+        🎊 ${planet.name} 征服成功！
+      </div>
+      <div style="color:rgba(255,255,255,0.65);font-size:0.9rem;margin-bottom:24px;line-height:1.7">
+        你完成了这个星球所有的题目！<br>数学能力大幅提升 📈
+      </div>
+      <div style="font-size:1.2rem;color:var(--yellow);margin-bottom:24px">⭐ ⭐ ⭐ 全部完成！</div>
+      <button class="next-btn show" style="display:block" onclick="showView('missions',document.querySelectorAll('.tab-btn')[0])">
+        🌌 返回星球地图
+      </button>
+    </div>`;
+  showReward('🏆', '星球征服！', `恭喜你完成了「${planet.name}」全部题目！`, '🌟 星球解锁奖励！', true);
+}
+
+// ═══════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════
+function checkAchievements() {
+  let newOnes = [];
+  ACHIEVEMENTS.forEach(a => {
+    if (!state.unlockedAchievements.has(a.id) && a.condition(state)) {
+      state.unlockedAchievements.add(a.id);
+      newOnes.push(a);
+    }
+  });
+  saveState();
+  if (newOnes.length > 0) {
+    setTimeout(() => {
+      showReward('🏅', '新成就解锁！', `「${newOnes[0].name}」- ${newOnes[0].desc}`, '成就徽章 +1 🎖️', true);
+    }, 2500);
+  }
+}
+
+function renderAchievements() {
+  document.getElementById('achievementsGrid').innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = state.unlockedAchievements.has(a.id);
+    return `<div class="achievement ${unlocked?'unlocked':'locked'}">
+      <span class="ach-emoji">${a.emoji}</span>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// REWARD POPUP
+// ═══════════════════════════════════════
+function showReward(emoji, title, msg, stars, confetti) {
+  document.getElementById('rewardEmoji').textContent = emoji;
+  document.getElementById('rewardTitle').textContent = title;
+  document.getElementById('rewardMsg').textContent = msg;
+  document.getElementById('rewardStars').textContent = stars;
+  document.getElementById('rewardOverlay').classList.add('show');
+  if (confetti) launchConfetti();
+}
+
+function closeReward() {
+  document.getElementById('rewardOverlay').classList.remove('show');
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  const colors = ['#ffd700','#ff6b9d','#00e5ff','#00e676','#9b6bff','#ff9800'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-p';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (Math.random() * 8 + 4) + 'px';
+    p.style.height = (Math.random() * 8 + 4) + 'px';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    p.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    p.style.animationDelay = Math.random() * 0.5 + 's';
+    wrap.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+}
+
+// ═══════════════════════════════════════
+// PLAN
+// ═══════════════════════════════════════
+function renderPlan() {
+  document.getElementById('planContent').innerHTML = PLAN.map(w => `
+    <div class="plan-week">
+      <div class="plan-week-header">${w.emoji} ${w.week}</div>
+      ${w.days.map(d => `
+        <div class="plan-day">
+          <div class="plan-day-num">${d.d}</div>
+          <div class="plan-day-content">
+            <div class="plan-day-title">${d.title}</div>
+            <div class="plan-day-sub">${d.sub}</div>
+          </div>
+          <div class="plan-day-tag ${TAG_CLASS[d.tag]}">${d.tagName}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════
+loadState();
+updateStats();
+renderPlanets();
+renderAchievements();
+renderPlan();
+</script>
+
+</body>
+</html>
